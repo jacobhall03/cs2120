@@ -116,7 +116,7 @@ follow example shows formally (in Lean).
 -/
 
 example : 1 = 1 := 
-  eq.refl 2   -- Lean inferns T = ℕ from 1
+  eq.refl 1   -- Lean inferns T = ℕ from 1
 
 /-
 Yay! We just constructed a formal proof: a
@@ -263,7 +263,8 @@ Give a quasi-formal English language "proof"
 of the proposition that 2 = 2.
 
 Theorem: 2 = 2.
-Proof: [your answer here]
+Proof: By reflexive property of equality (applied to the value 2). QED.
+
 
 -/
 
@@ -275,8 +276,16 @@ the proposition, 2 = 2. (See above for a good
 example to follow!)
 -/
 
--- answer here
+-- Defined a function below that outputs a proof using the reflexive property of equality,
+-- which states that, for all types, T, and for all objects, t, of that type, t is equal to itself.
+-- When applied to the integer 2, we see that 2, is in fact equal to 2 using our proof function, rpoe_proof. 
+def rpoe_proof
+    (T : Type)
+    (t : T)
+    : t = t
+    := eq.refl t
 
+#reduce rpoe_proof ℤ 2
 
 /-
 EXERCISE #3.
@@ -288,7 +297,7 @@ A. Every time the bell has rung, I've gotten a
 nugget. The bell just rung, so I'm gonna get a
 nugget! (Dogs usually say "gonna," by the way).
 
-answer: 
+answer: Inductive
 
 B. The "clone repo into container" command did
 nothing. That was clearly wrong. I search around
@@ -298,12 +307,12 @@ have git installed. Ah ha, I thought. That could
 be it. I'll do the obvious experiment and install
 git and see if it works. (It did, by the way.)
 
-answer: 
+answer: Abductive
 
 C. It's true that it's raining, and it's true
 that the streets are wet, so it must be true 
 that "it's raining *and* the streets are wet."
 
-answer: 
+answer: Deductive
 -/
 end cs2120
