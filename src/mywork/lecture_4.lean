@@ -48,6 +48,7 @@ theorems in this style.
 
 /-
 CONJECTURES
+a proposition that you believe is true, but that you have not yet proved
 -/
 
 -- We define eq_symm to be the proposition at issue

@@ -128,15 +128,9 @@ Practice
 
 example : ∀ (T : Type) (x y z : T), x = y → y = z → z = x :=
 begin
-<<<<<<< HEAD
-  assume T x y z e1 e2,
-  apply eq.symm _,
-  apply eq.trans e1 e2,
-=======
   assume T x y z h1 h2, -- introduction rule for ∀ 
   apply eq.symm _,      -- application of symm *theorem*
   apply eq.trans h1 h2, -- application of trans theorem
->>>>>>> f7f358b2e9a4ea3b4eea8165e76f95f17dffbcc5
 end
 
 /-
