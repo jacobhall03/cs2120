@@ -1,3 +1,12 @@
+--Group Name: Kobra
+-- weh7xp : https://github.com/jacobhall03/cs2120.git
+/-
+I didn't really work with anyone on the homework.
+I did work with some people on understanding the course
+material that was needed to complete this assignment though.
+-/
+
+
 /-
 EQUALITY
 -/
@@ -178,11 +187,7 @@ begin
   have qr : Q ∧ R := and.elim_right h,
   have q : Q := and.elim_left qr,
   have r : R := and.elim_right qr,
-  apply and.intro _ _,
-  apply and.intro _ _,
-  apply p,
-  apply q,
-  apply r,
+  apply and.intro (and.intro p q) r,
 end
 
 /- #11
