@@ -213,6 +213,68 @@ apply both ∧ elimination rules to obtain proofs of P and R, separately. Our go
 is to prove P ∧ (Q ∨ R), so we would apply the ∧ introduction rule using the proof
 of P and an application of the right ∨ introduction rule using a proof of R.
 QED.
+-/
+
+example : ∀ (P Q R : Prop), P ∨ (Q ∧ R) ↔ (P ∨ Q) ∧ (P ∨ R) := 
+begin
+  assume P Q R,
+  apply iff.intro _ _,
+  --rightwards
+    assume porqandr,
+    cases porqandr with p qandr,
+    --case p
+      apply and.intro _ _,
+      apply or.intro_left _ p,
+      apply or.intro_left _ p,
+    --case qandr
+      apply and.intro _ _,
+      apply or.intro_right _ (and.elim_left qandr),
+      apply or.intro_right _ (and.elim_right qandr),
+
+  --leftwards
+    assume porqandporr,
+    have porq : (P ∨ Q) := and.elim_left porqandporr,
+    have porr : (P ∨ R) := and.elim_right porqandporr,
+    cases porq with p q,
+    --case p
+      apply or.intro_left _ p,
+
+    --case q
+      cases porr with p r,
+      --case p
+        apply or.intro_left _ p,
+      --case r
+        apply or.intro_right _ (and.intro q r),
+end
+/-
+Proof:
+Assume we are given arbitrary propositions P, Q, and R.
+Apply ↔ introduction rule, which changes our goal to proving both
+P ∨ (Q ∧ R) → (P ∨ Q) ∧ (P ∨ R) and (P ∨ Q) ∧ (P ∨ R) → P ∨ (Q ∧ R).
+
+To prove the former proposition P ∨ (Q ∧ R) → (P ∨ Q) ∧ (P ∨ R), assume
+that we have a proof of P ∨ (Q ∧ R). In the case that we have a proof of P, apply
+the ∧ introduction rule. This changes our goal for this case to prove both (P ∨ Q)
+and (P ∨ R), separately. We do this by applying the left ∨ introduction rule with
+our proof of P to each. In the case that we have a proof of (Q ∧ R), apply the ∧
+introduction rule, which changes our case proof goal to proving both (P ∨ Q) and
+(P ∨ R), separately. We obtain a proof of (P ∨ Q) by application of the right ∨
+introduction rule with a proof of Q obtained by application of the left ∧
+elimination rule. We obtain a proof of (P ∨ R) by application of the right ∨
+introduction rule with a proof of R obtained by application of the right ∧ 
+elimination rule. 
+
+To prove the latter proposition, (P ∨ Q) ∧ (P ∨ R) → P ∨ (Q ∧ R), we start by
+assuming we have a proof of (P ∨ Q) ∧ (P ∨ R), which changes our goal to proving
+P ∨ (Q ∧ R). We obtain proofs of (P V Q) and (P ∨ R) by application of the left
+and right ∧ elimination rules, respectively. By application of a case analysis, we
+can prove P ∨ (Q ∧ R). In the case that we have a proof of P obtained from our proof
+of (P ∨ Q), we simply apply the left ∨ introduction rule with the proof of P. In the
+case that we have a proof of Q obtained from the case that we have a proof of
+(P ∨ Q) and a proof of R obtained from the xase that we have a proof of (P ∨ R), we
+apply the right ∨ introduction rule with a proof of (P ∧ R) obtained by application
+of the ∧ introduction rule with the proofs of Q and R.
+QED.
 
 -/
 
