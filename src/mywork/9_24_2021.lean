@@ -49,5 +49,5 @@ begin
   -- case notp
     have f := notnotp notp,
     exact false.elim f,
-    contradiction,
+    --contradiction
 end
