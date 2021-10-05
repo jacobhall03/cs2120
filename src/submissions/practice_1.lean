@@ -78,9 +78,17 @@ Suppose you have a proof, let's call it pf, of the proposition,
 (∀ x, P x), and you need a proof of P t, for some particular t.
 Write an expression then uses the elimination rule for ∀ to get
 such a proof. Complete the answer by replacing the underscores
-in the following expression: ( P t ). 
+in the following expression: ( pf t ). 
 -/
 
+axioms
+(Ball : Type)
+(blue : Ball → Prop)
+(allballsblue : ∀ (b : Ball), blue b)
+(tomsBall : Ball)
+
+theorem tomsBallBlue : blue tomsBall :=
+    allballsblue tomsBall
 
 /-
 IMPLIES: →
