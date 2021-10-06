@@ -57,7 +57,8 @@ begin
   have pornp := classical.em P,
   cases pornp with p pn,
   assumption,
-  contradiction,
+  have f := h pn,
+  apply false.elim f,
 end
 
 -- 5

@@ -23,6 +23,7 @@ example : false := _    -- trick question? why?
 
 example : ∀ (P : Prop), P ∨ P ↔ P := 
 begin
+<<<<<<< HEAD:src/homework/practice_2.lean
   assume P,
   apply iff.intro _ _,
   -- forward
@@ -38,6 +39,8 @@ begin
   -- backwards
   assume p,
   apply or.intro_left P p,
+=======
+>>>>>>> fcba5ad44160653f0c0421bdee35d9d0532b3390:src/homework/hw3.lean
 end
 /-
 Proof: If we assume that we are given an arbitrary proposition, P, and that
