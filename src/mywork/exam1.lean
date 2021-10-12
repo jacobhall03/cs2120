@@ -1,3 +1,7 @@
+-- Jacob Hall
+-- weh7xp
+
+
 /- 
    *******************************
    PART 1 of 2: AXIOMS [50 points]
@@ -73,11 +77,14 @@ inference rule notation.
 Give a brief English language explanation of
 the introduction rule for true.
 
+--Applying the introduction rule for true simply gives you a proof
+of true. The introduction rule for true requires no arguements. 
+
 -- For any given proposition, there is either a proof or no proof of it.
 We could say that to have a proof of proposition means that it
 is true, but to not have a proof of a proposition means that it
 is false, untill proven otherwise. So, logically, for a proposition
-to be true, there must be a proof of it. So, for true to be true, then
+to be true, there must be a proof of it. So, for true to always be true, then
 there must always be a proof of true. 
 
 ELIMINATION
@@ -111,7 +118,7 @@ introduction rule for ∧.
 ---------------------------- intro
         (pq : P ∧ Q)
 
-Given an English language description of
+Give an English language description of
 this inference rule. What does it really
 say, in plain simple English. 
 
@@ -121,8 +128,25 @@ a proof of P ∧ Q.
 
 ELIMINATION
 
-Given the elimination rules for ∧ in both
+Give the elimination rules for ∧ in both
 inference rule and English language forms.
+-/
+/-
+  (P Q : Prop) (pq : P ∧ Q)
+---------------------------- and.elim_left
+            (p : P)
+
+(P Q : Prop) (pq : P ∧ Q)
+---------------------------- and.elim_right
+            (q : Q)
+
+
+ The left ∧ elimination rule states that, if you have two
+ propositions, P and Q, and you have a proof of (P ∧ Q)
+ then you can derive (of have yourself) a proof of P (the left side of
+ the conjunction). The right ∧ elimination rule states the same but,
+instead of a proof of P, you can derive a proof of Q (the right side of the
+conjunction).
 -/
 
 /-
@@ -172,7 +196,7 @@ what it says.
                         (q : Q)
 
 -- If you have a proof that for all propositions t, of type, T, there is
-proof of Q and you have a proof of t and it is an arbitrary type, T, then you
+proof of Q and you have a proof of t and that it is an arbitrary type, T, then you
 can apply the 'for all' proof to the proof of t, to get a proof of Q.
 
 Given a proof, (pf : ∀ (t : T), Q), and a value, (t : T),
@@ -239,7 +263,7 @@ of a proposition, let's call it P, and, in that context,
 deriving a proof of false or some other contradiction, such
 as having proofs of P and ¬P.
 
-Becuase ¬P is the same as P → false, we start by assuming we have
+Because ¬P is the same as P → false, we start by assuming we have
 a proof of P and, in that context, we derive a proof of false. We
 then apply the false elimination rule using our proof of false. 
 -/
@@ -252,15 +276,15 @@ the lack of a ¬ in front of the P).
 
 Fill in the blanks the following partial answer:
 
-To prove P, assume __¬P__ and show that ____you can derive a contradiction______.
+To prove P, assume __ ¬P __ and show that ____you can derive a contradiction______.
 From this derivation you can conclude _____¬¬P_____.
 Then you apply the rule of negation ______elimination______
 to that result to arrive at a proof of P. We have
 seen that the inference rule you apply in the 
 last step is not constructively valid but that it
 is _____logically_____ valid, and that accepting the axiom
-of the __________ suffices to establish negation
-__________ (better called double _____ _________)
+of the _____law of excluded middle_____ suffices to establish negation
+_____elimination_____ (better called double __negation___ ____elimination_____)
 as a theorem.
 -/
 
@@ -321,8 +345,8 @@ each expression means.
 
 /-
 For all people, p, who have the distinct properties Nice and
-Talented, all people, q, likes person, p. John Lennon is a person.
-There is an assumed proof (axiom), JLNT, that John Lennon has both
+Talented, all people, q, likes person, p. John Lennon is a person and
+there is an assumed proof (axiom), JLNT, that John Lennon has both
 properties Nice and Talented. All people, p, therefore, like John
 Lennon.
 -/
@@ -444,17 +468,17 @@ thre is someone who loves everyone. [5 points]
 
 axiom Loves : Person → Person → Prop
 
-example : (∃(x : Person), ∀(y : Person), (Loves x y)) →
-(∀(a s : Person), (Loves a s) ↔ (Loves s a)) → 
-(∀(e : Person), ∃(x : Person), (Loves e x)) :=
+example : (∃(x : Person), ∀(all : Person), (Loves all x)) →
+(∀(a b : Person), (Loves a b) ↔ (Loves b a)) → 
+(∃(y : Person), ∀(e : Person), (Loves y e)) :=
 begin
   assume h1 h2,
+  cases h1 with p pf,
+  apply exists.intro p,
   assume e,
-  cases h1 with x pf,
-  apply exists.intro x,
-  have lexifflxe := h2 e x,
-  have lxeimplex := iff.elim_right lexifflxe,
-  have lxe := pf e,
-  have lex := lxeimplex lxe,
-  exact lex,
+  have lpeifflep := h2 p e,
+  have lepimplpe := iff.elim_right lpeifflep,
+  have lep := pf e,
+  have lpe := lepimplpe lep,
+  exact lpe,
 end
