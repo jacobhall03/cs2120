@@ -100,6 +100,9 @@ to let us write the implicit argument(s)
 explicitly. 
 -/
 begin
+  unfold reflexive,
+  assume x,
+  apply refl,
 end
 
 /-
