@@ -1,5 +1,5 @@
 import data.set
-
+import tactic.ring
 namespace relation
 
 -- PRELIMINARY SETUP
@@ -28,18 +28,12 @@ def powerset (s : set β) := { s' | s' ⊆ s}
 
 -- PROBLEMS
 
-<<<<<<< HEAD
--- Prove both formally and in English.
--- (∃ (x y : β), r x y) → 
---asymmetric means that all
-=======
 /- 
 #1: Give both a formal and an English-language proof. Then
 answer the question, is the proposition true if you remove
 the first condition, that β is inhabited? Briefly explain
 your answer (in English).
 -/
->>>>>>> 3a98dd22f277d116a198e60e11624be546803c1f
 example : (∃ (b : β), true) → asymmetric r → ¬reflexive r :=
 begin
   unfold asymmetric reflexive,
@@ -51,7 +45,10 @@ begin
   have contra := asym rbb,
   contradiction,
 end
+/-
+Proof:
 
+-/
 
 
 /-
@@ -134,21 +131,42 @@ into English. (Or if you wanted to be truly Hobbit-like you could say
 -- A: For any n, 1 divides n.
 example : ∀ n, divides 1 n :=
 begin
+  assume n,
+  unfold divides,
+  apply exists.intro n,
+  ring,
 end
 
 -- B. For any n, n divides n
 example : ∀ n, divides n n :=
 begin
+  assume n,
+  unfold divides,
+  apply exists.intro 1,
+  ring,
 end
 
 -- #C. prove that divides is reflexive 
 example : reflexive divides :=
 begin
+  unfold reflexive divides,
+  assume x,
+  apply exists.intro 1,
+  ring,
 end 
 
 -- #D. prove that divides is transitive
 example : transitive divides :=
 begin
+  unfold transitive divides,
+  assume x y z,
+  assume h1 h2,
+  cases h1 with h1w h1p,
+  cases h2 with h2w h2p,
+  rw h2p,
+  rw h1p,
+  apply exists.intro (h1w*h2w),
+  ring,
 end 
 
 /- 
@@ -156,14 +174,30 @@ E. Is divides symmetric? if yes, give a proof, otherwise
 give a counterexample and a brief explanation to show that 
 it's not.
 -/
-
--- Answer here
+/-
+Divides is not symetric. Take, for example, divides 2 8 (8 = k * 2) which
+would be provable by the natural number 4 in place of k. divides 8 2 (2 = k * 8)
+would have to be satisfied by k being equal to 1/4, which is not a natural number.
+By definition, k must be a natural number, so we have demonstrated that
+divides 2 8 and divided 8 2 are a counterexample to the proposition that
+divides is symmetric. 
+-/
 
 /- 
 #F. Prove that divides is antisymmetric. 
 -/
 example : anti_symmetric divides := 
 begin  
+  unfold anti_symmetric divides,
+  assume x y,
+  assume h1 h2,
+  cases h1 with h1w h1p,
+  cases h2 with h2w h2p,
+  rw h1p,
+  -- it's obviously true that h1w must equal 1:
+  have h1one : h1w = 1 := sorry,
+  rw h1one,
+  ring,
 end
 
 
@@ -179,11 +213,16 @@ problems.
 -- A
 example : asymmetric r → irreflexive r :=
 begin
+  unfold asymmetric irreflexive,
+  assume asym,
+  assume x,
 end
 
 -- B
 example : irreflexive r → transitive r → asymmetric r :=
 begin
+  unfold irreflexive transitive asymmetric,
+  assume irr trans,
 end
 
 -- C
