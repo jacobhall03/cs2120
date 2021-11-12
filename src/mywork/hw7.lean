@@ -1,3 +1,7 @@
+
+-- Jacob Hall
+-- weh7xp
+
 import data.set
 import tactic.ring
 namespace relation
@@ -46,8 +50,17 @@ begin
   contradiction,
 end
 /-
-Proof:
+English Language Proof:
+Assume that β is inhibited (exists), r is asymmetric, and that r is 
+reflexive. We now must derive a contradiction. From our proof that
+there exists a (b : β), we have ourselves a proof of (b : β) and of true.
+If we apply the property of reflexivity to (b : β) we get a proof of (r b b).
+If we apply the property of asymmetrity to (r b b) we get a proof of (¬r b b),
+which is a contradiction.
+QED.
 
+Removing the first condition will make the proposition false. You would
+be unable to derive a contradiction that r is both asymmetric and reflexive. 
 -/
 
 
@@ -109,6 +122,21 @@ begin
   have xins1 := s2s1 xins2,
   exact xins1,
 end
+/-
+Informal Proof:
+  If we assume that we are given a set, s, and two sets, s1 and s2, that are
+  powersets of the the set s. We them assume that s1 is a subset of s2
+  and that s2 is a subset of s1. We must not prove that s1 = s2. By applying
+  set extensionality, that now entitles us to prove that for all x in s1
+  x is in s2, and vice-versa. We can assume that we have a proof of an
+  arbitrary x. To prove that if x is in s1, then x is in s2, we first assume
+  that x is in s1. Then we apply our proof that s1 is a subset of s2 to get
+  a proof that x is in s2, which gives us a proof that x is in s2. To prove
+  that if x is in s2, then x is in s1, we first assume that x is in s2.
+  Then we apply our proof that s2 is a subset s1 to our proof that x is in s1,
+  which gives us a proof that x is in s1.
+  QED. 
+-/
 
 
 /-
@@ -136,6 +164,13 @@ begin
   apply exists.intro n,
   ring,
 end
+/-
+Informal Proof that, for any n, 1 divided n:
+Assume that we are given an arbitrary value, n. This leaves us to
+proof that there exists some k such that n = k * 1. Applying the
+introduction rule for exists to n, leaves us to prove n = n * 1, which
+is true BY THE RING AXIOMS! QED.
+-/
 
 -- B. For any n, n divides n
 example : ∀ n, divides n n :=
@@ -145,6 +180,13 @@ begin
   apply exists.intro 1,
   ring,
 end
+/-
+Informal Proof that, for any n, n divides n:
+Assume that we are given an arbitrary value, n. This leaves us to
+prove that there exists some k such that n = k * n. Applying the
+introduction rule for exists to 1, leaves us to prove n = 1 * n,
+which is true by basic algebra.QED.
+-/
 
 -- #C. prove that divides is reflexive 
 example : reflexive divides :=
@@ -154,6 +196,12 @@ begin
   apply exists.intro 1,
   ring,
 end 
+/-
+Informal Proof that divides is reflexive:
+Assume that we are given an arbitrary value, n. This leaves us to prove
+that there exists some k such that x = k * x. Apply the intro rule for exists
+to 1. We then prove x = 1 * x by basic algebra. QED.
+-/
 
 -- #D. prove that divides is transitive
 example : transitive divides :=
@@ -161,13 +209,27 @@ begin
   unfold transitive divides,
   assume x y z,
   assume h1 h2,
-  cases h1 with h1w h1p,
-  cases h2 with h2w h2p,
+  cases h1 with k1 h1p,
+  cases h2 with k2 h2p,
   rw h2p,
   rw h1p,
-  apply exists.intro (h1w*h2w),
+  apply exists.intro (k1*k2),
   ring,
 end 
+/-
+Informal Proof that divides is transitive:
+Assume that we are given arbitrary values x, y, and z. Assume that
+there exists some k such that y = k * x and that there exists some other k
+such that x = k * y. We must now prove that there exists some k such that
+z = k * x. By case analysis on our proof that y = k * x and z = k * y
+We can get proofs of some arbitrary k-values that satisfy y = k1 * x and z = k2 *y
+and proofs of both y = k1 * x and z = k2 * y with those k-values. We rewrite
+z = k * x to k2 * y = k * x, then k2 * y = k * x to k2 * (k1 * x) = k * x.
+We must now prove that there exists some k such that k2 * (k1 * x) = k * x.
+We can apply the intro rule for exists to our proof of k1 times our proof of k2.
+Now we must prove k2 * (k1 * x) = k1 * k2 * x, which is easily provable by
+the basic rules of algebra. 
+-/
 
 /- 
 E. Is divides symmetric? if yes, give a proof, otherwise 
@@ -191,14 +253,25 @@ begin
   unfold anti_symmetric divides,
   assume x y,
   assume h1 h2,
-  cases h1 with h1w h1p,
-  cases h2 with h2w h2p,
+  cases h1 with k1 h1p,
+  cases h2 with k2 h2p,
   rw h1p,
-  -- it's obviously true that h1w must equal 1:
-  have h1one : h1w = 1 := sorry,
-  rw h1one,
+  -- it's obviously true that k1 must equal 1:
+  have k1isone : k1 = 1 := sorry,
+  rw k1isone,
   ring,
 end
+/-
+Informal proof that divides is antisymmetric:
+Assume that we are given arbitrary values x and y. Assume that there exists
+some k-values such that y = k * x and x = k * y. From ∃ (k : ℕ), y = k * x
+we can get a proof of, say, k1, a value that satifies the proof that y = k1 * x,
+and the proof that y = k1 * x. From ∃ (k : ℕ), x = k * y, we can get a proof
+of k2, a value that that satifies the proof that x = k2 * y, and the proof that
+x = k2 * y. We can rewrite x = y to x = k1 * x. It's obviously true the k1 must
+equal to 1, so we now must prove x = 1 * x, which is provable by the basic 
+rules of algebra. 
+-/
 
 
 /- #4
@@ -216,18 +289,69 @@ begin
   unfold asymmetric irreflexive,
   assume asym,
   assume x,
+  assume rxx,
+  have notrxx := asym rxx,
+  contradiction,
 end
+/-
+Proof that if r is asymmetric then r is irreflexive:
+We first assume that r is asymmetric, we have an abitrary value of
+type β (call it 'x'), and that we have a proof of the relation x ≺ x (r x x).
+Our goal is to now prove false, in other words, derive a contradiction.
+From the assumption that r is asymmetric we can get a proof of ¬ x ≺ x (¬r x x).
+Our proofs of (r x x) and (¬r x x) contradict eachother. QED.
+-/
 
 -- B
 example : irreflexive r → transitive r → asymmetric r :=
 begin
   unfold irreflexive transitive asymmetric,
   assume irr trans,
+  assume x y,
+  assume rxy,
+  assume ryx,
+  have rxx := trans rxy ryx,
+  have contra := irr x,
+  contradiction,
 end
+/-
+Proof that, if r is irreflexive, and, if r is transitive, then r is asymmetric:
+We first assume that r is irreflexive and transitive. We also assume that we
+are given arbitrary values (x : β) and (y : β), a proof of (r x y), and a
+proof of (r y x). Our goal is to now derive a contradiction.
+From transitivity, we can have a proof of (r x x). From irreflexivity, we can
+have a proof of (¬ r x x). QED.
+-/
 
 -- C
-example : transitive r → ¬ symmetric r → ¬ irreflexive r :=
+example : (∃ (b : β), true) → transitive r → ¬ symmetric r → ¬ irreflexive r :=
 begin
+  unfold transitive symmetric irreflexive,
+  assume b trans notsym irr,
+  cases b with b t,
+  have notrbb := irr b,
+  /-
+  At this point, we are unable to derive any other proofs
+  that would assist us in proving the proposition by contradiction.
+  
+  However, we can think of a case where r is transitive, not symmetric
+  and irreflexive.
+  
+  Take this series of relations, for example:
+  
+  1 -> 2
+  2 -> 3
+  1 -> 3
+
+  The set of relations is transitive because 1 -> 2 and 2 -> 3 exist, so
+  1 -> 3 must exist. The set of relations is not sysmmetric because, for example,
+  1 -> 2 is a relation, but 2 -> 1 is not present in our set of relations.
+  The set of relations is irreflexive, though, because there are no relations
+  that say 1 -> 1, 2 -> 2, or 3 -> 3.
+  This is a contradiction to the proposition that if a binary relation, r, is
+  transitive, and if r is not symetric, then r is NOT irreflexive. We have shown
+  that in one case (and possibly more), this simply is not true.
+   -/
 end
 
 
