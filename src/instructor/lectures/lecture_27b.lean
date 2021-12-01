@@ -1,7 +1,11 @@
+-- Name: Jacob Hall
+-- CID: weh7xp
+
 import .lecture_26
 import data.set
 
 namespace relations
+
 section functions
 
 variables {α β γ : Type} (r : α → β → Prop)
@@ -183,29 +187,21 @@ example :
   image_set r (dom r) = { b : β | true } :=
 begin
 -- homework (on your own ungraded but please do it!)
-assume sur,
-unfold surjective at sur,
-apply set.ext,
-assume x,
-split,
-
---forward
+  assume surj,
+  apply set.ext,
+  assume x,
+  split,
+  --forward
   assume xinimage,
-  unfold image_set at xinimage,
+  -- trivial,  -- we could use this here, but why?
+  unfold surjective at surj, --this also accomplishes the goal
 
---backward
+  --backwards
   assume xinb,
+  unfold surjective at surj,
   unfold image_set,
-  have onto := sur.right,
-  have total := sur.left,
-  unfold total_function at total,
-  have func := total.left,
-  unfold function at func,
-  unfold single_valued at func, 
-  have arax := onto x,
-
-  -- I'm stuck?
-    
+  
+  
 end
 
 /-
@@ -441,30 +437,102 @@ def bijectivep := function r ∧ bijective (dom_res r (dom_of_def r))
 
 
 
--- #2: Prove that the inverse of a bijective function is bijective.
+-- EXERCISE #2: Prove that the inverse of a bijective function is bijective.
 example : bijective r → bijective (inverse r) :=
 begin
+  assume biject,
+
+  unfold bijective at biject,
+  cases biject with surject inject,
+  unfold surjective at surject,
+  cases surject with r_tot r_onto,
+  unfold injective at inject,
+  cases inject with r_tot r_onetoone,
+  cases r_tot with r_func r_def,
+  unfold function at r_func,
+  unfold single_valued at r_func,
+  unfold defined at r_def,
+
+  unfold bijective,
+  apply and.intro _ _,
+
+  --left (surjective)
+  unfold surjective,
+  apply and.intro,
+    --total
+    unfold total_function,
+    apply and.intro,
+      --function
+      unfold function,
+      unfold single_valued,
+      assume b a1 a2 irba1 irba2,
+      unfold inverse at irba1 irba2,
+      apply r_onetoone irba1 irba2,
+      --defined
+      assume b,
+      unfold defined,
+      unfold inverse,
+      apply r_onto b,
+    --onto
+    assume a,
+    unfold inverse,
+    apply r_def a,
+  
+  --right (injective)
+  unfold injective,
+  apply and.intro,
+    --total
+    unfold total_function,
+    apply and.intro,
+      --function
+      unfold function,
+      unfold single_valued,
+      assume b a1 a2 irba1 irba2,
+      unfold inverse at irba1 irba2,
+      apply r_onetoone irba1 irba2,
+      --defined
+      assume b,
+      unfold defined,
+      unfold inverse,
+      apply r_onto b,
+    -- one-to-one
+    assume b1 b2 a irb1a irb2a,
+    unfold inverse at irb1a irb2a,
+    apply r_func irb1a irb2a,
 end
 
 
 /-
-#3: Prove that the inverse of the inverse of a bijective
+EXERCISE #3: Prove that the inverse of the inverse of a bijective
 function is that function.
 -/
 example : bijective r → (r = inverse (inverse r)) :=
 begin
+  assume biject,
+  unfold inverse, -- nice :)
 end
 
 /-
-#4: Formally state and prove that every injective function 
+EXERCISE  #4: Formally state and prove that every injective function 
 has a *function* as an inverse.
 -/
 example : injective r → function (inverse r) :=
-  _ -- hint: remember recent work
+begin
+  -- hint: remember recent work
+  assume inject,
+  unfold injective at inject,
+  cases inject with r_tot r_onetoone,
+
+  unfold function,
+  unfold single_valued,
+  assume b a1 a2 irba1 irba2,
+  unfold inverse at irba1 irba2,
+  apply r_onetoone irba1 irba2,
+end
 
 
 /-
-#5. Is bijectivity transitive? In other words, if the
+EXERCISE #5. Is bijectivity transitive? In other words, if the
 relations, s and r, are both bijective, then is the
 composition, s after r, also always bijective? Now
 we'll see.
@@ -478,7 +546,88 @@ False? Present a counterexample.
 -/
 def bij_trans (s : β → γ → Prop)  (r : α → β → Prop) :
   bijective r → bijective s → bijective (composition s r) := 
-  _
+begin
+  assume biject_r biject_s,
+
+  --unfolds
+  unfold bijective at biject_r biject_s,
+  cases biject_r with surject_r inject_r,
+  cases biject_s with surject_s inject_s,
+    --unfolds from surjectivity
+  unfold surjective at surject_r surject_s,
+  cases surject_r with totfunc_r onto_r,
+  cases surject_s with totfunc_s onto_s,
+  unfold total_function at totfunc_r totfunc_s,
+  cases totfunc_r with func_r def_r,
+  cases totfunc_s with func_s def_s,
+  unfold function at func_r func_s,
+  unfold single_valued at func_r func_s,
+  unfold defined at def_r def_s,
+    --unfolds from injectivity
+  unfold injective at inject_r inject_s,
+  cases inject_r with totfunc_r onetoone_r, -- no need to unfold totfunc
+  cases inject_s with totfunc_s onetoone_s, -- already did that in surject unfolds
+
+-- proving
+  unfold bijective,
+  unfold composition,
+  apply and.intro,
+    --surjective
+    unfold surjective,
+    apply and.intro,
+      --total
+      unfold total_function,
+      apply and.intro,
+        --function
+        unfold function,
+        unfold single_valued,
+        assume a g1 g2 f1 f2,
+        cases f1 with b1 pb1,
+        cases f2 with b2 pb2,
+        have rab1 := pb1.right,
+        have rab2 := pb2.right,
+        have b1eqb2 := func_r rab1 rab2,
+        have sb1g1 := pb1.left,
+        have sb2g2 := pb2.left,
+        rw b1eqb2 at sb1g1,
+        apply func_s sb1g1 sb2g2,
+        --defined
+        assume a,
+        unfold defined,
+        have ebrab := def_r a,
+        cases ebrab with b rab,
+        have egsgb := def_s b,
+        cases egsgb with g sgb,
+        have both := and.intro sgb rab,
+        apply exists.intro,
+        apply exists.intro b both,
+      --onto
+      assume g,
+      have ebsbg := onto_s g,
+      cases ebsbg with b sbg,
+      have earab := onto_r b,
+      cases earab with a rab,
+      have both := and.intro sbg rab,
+      apply exists.intro,
+      apply exists.intro b both,
+
+    --injective
+    unfold injective,
+    apply and.intro,
+      --total
+      sorry, -- already proved total (lines 575 to 600)
+      -- one to one
+      assume a1 a2 g f1 f2,
+      cases f1 with b1 sb1gandra1b1,
+      cases f2 with b2 sb2gandra2b2,
+      have sb1g := sb1gandra1b1.left,
+      have sb2g := sb2gandra2b2.left,
+      have b1eqb2 := onetoone_s sb1g sb2g,
+      have ra1b1 := sb1gandra1b1.right,
+      have ra2b2 := sb2gandra2b2.right,
+      rw b1eqb2 at ra1b1,
+      apply onetoone_r ra1b1 ra2b2, -- proved ... 10 years later
+end
 
 /-
 In general, an operation (such as inverse, here) that, 
