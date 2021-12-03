@@ -547,6 +547,7 @@ False? Present a counterexample.
 def bij_trans (s : β → γ → Prop)  (r : α → β → Prop) :
   bijective r → bijective s → bijective (composition s r) := 
 begin
+<<<<<<< HEAD
   assume biject_r biject_s,
 
   --unfolds
@@ -627,6 +628,32 @@ begin
       have ra2b2 := sb2gandra2b2.right,
       rw b1eqb2 at ra1b1,
       apply onetoone_r ra1b1 ra2b2, -- proved ... 10 years later
+=======
+assume br bs,
+split,
+-- surjective
+unfold surjective,
+split,
+  -- compoisition total
+  unfold total_function,
+  split,
+   -- composition is a function
+   unfold function single_valued,
+   assume x y z srxy srxz,
+   unfold bijective at br bs,
+   cases bs,
+   cases br,
+   unfold composition at srxy srxz,
+   unfold surjective at  bs_left,
+   unfold surjective at  br_left,
+   unfold injective at br_right bs_right,
+   cases bs_left,
+   cases br_left,
+   cases bs_right,
+   cases br_right,
+   -- composition is defined for all α 
+-- injective
+>>>>>>> 6f27f36e4b709f7b78ff25e03754972eb8fa31f2
 end
 
 /-

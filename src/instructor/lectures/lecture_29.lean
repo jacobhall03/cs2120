@@ -1,269 +1,302 @@
-import .lecture_28
--- defines sum_up_to 
+import algebra.algebra.basic tactic.ring
 
 /-
-To review, last time we ended by using
-induction to define a function that sums
-up the numbers from 0 to any natural number
-given as an argument. 
+In this lecture we pull together all of the 
+elements of a completely formal and checked 
+proof by induction of the claim that the sum
+of the natural numbrtd from 0 to n is equal 
+to n(n*1)/2. 
+
+This specific theorem is interesting. The
+larger  is that the end-to-end example we
+give you here can serve as model for how to
+prove a generalization, (∀ n, P n), using
+the induction axiom for the type of n. All
+of the essential elements of any such proof 
+are highlighted here and the completeness
+and correctness of this example is formally
+proved.
 -/
 
-#reduce sum_up_to 5
 
+namespace hidden
+
+-- Data type
 
 /-
-I'm going to tell two stories, and then
-explain why they're two applications of
-the same "polymorphic induction axiom."
+As we've discussed, every inductively
+defined data type comes with it own
+induction rule, a rule for proving a
+universal generalization of values of
+that type. 
 
-First, we want a machine that, for any 
-natural number, n, returns a proof that
-n has some specific property, P.
+To be more precise, if α is a type and 
+P : α → Prop is a predicate on (property 
+of) values of this type, the induction
+can be applied to prove ∀ (a : α), P a.
+The induction rule takes P implicitly 
+along with proofs of specified lemmas,
+yielding a proof of ∀ a, P a in return.
 
-Second, we want a machine that, for 
-any natural number, n, returns the value
-of a specific function, (P n). 
-
-The difference is the first returns a 
-proof of a proposition, P n, about n, while
-the second returns the value of a function,
-P n.
-
-The key idea is that we can build each 
-of these machines using the induction axiom
-for the type of n. 
-
-The induction principle is a machine that
-takes two smaller machines as inputs and 
-yields the machine that we want: the one
-that takes *any* natural number and gives
-back either a proof or a data value for 
-n.
-
-THe first machine just returns a proof or
-a value for 0. The second machine takes 
-two inputs, any natural number, n', and
-the answer (proof or value) for n', and
-it computes/constructs the correct result
-for n'+1.
-
-Now when the big machine is given any 
-value n, it runs the first machine to 
-get an answer for 0, and then it runs
-the second machine as many times as
-needed to get and answer for n, using
-the output of each use of machine two
-as the input to its next invocation. In
-practice it usually involves counting
-down from n to 0 rather than 0 up to n.
-
-When you do a "proof by induction" what
-you have to provide are the two smaller
-machines! That's what proof by induction
-does: it transforms the goal of proving
-∀ n, P n, into two goals: one machine
-that provides an answer for zero, and 
-a second one, a *function*, that takes
-any natural number, n', and the answer
-for n', and computes a proof or value
-for n'+1. With these machines in hand,
-you can now apply proof by application
-of the induction axiom for the given
-type to get a machine that returns the
-right result *for any* (∀) nat value,
-n.
+Recall the specific example where α is
+bool. If P is a property, we can prove
+it holds for all values of type bool
+by having proofs that it holds for each
+of its two values, tt and ff in Lean.
 -/
-
-#check @nat.rec_on
-
-universe u_1
-def induction_axiom_for_nat := 
-Π                               -- for any
-  {motive : ℕ → Sort u_1}       -- property or function of n
-  (n : ℕ),                      -- argument n
-  
-  motive 0 →                    -- proof or value for 0
-
-  -- a function that turns a value n and a result for n into a result for n+1
-  (Π (n : ℕ), motive n → motive n.succ) → 
-
-  -- gives you a result (proof or value) for arbitrary argument value, n
-  motive n
-
 
 /-
-To apply induction, we had to define what
-we might think of a two machines: the first
-provides a fixed answer for a base case,
-here where the argument is zero; and the 
-second, a machine that, when given any 
-natural nunber, n', and an answer/proof
-for n', produces an answer/proof for n =
-n' + 1. These two machine suffice to give
-on the power to construct an answer/proof
-for any argument value, n. 
+Things are much more interesting when
+we apply induction to prove universal
+generalizations about natural numbers,
+∀ n, P n. 
 -/
 
--- Let's define a binary function by induction
+inductive nat : Type 
+| zero : nat 
+| succ  (n' : nat) : nat
+
 /-
-Addition of natural numbers takes two numbers
-as arguments and produces a third as a result.
+Data introduction rules are generally
+called constructors. The first here takes 
+no arguments and thus defines a constant 
+term of this type. The second constructor
+applied to a term of type nat constitutes
+a new term also of type nat. It gives us
+a way to incorporating a given nat term,
+n', into a new term, (succ n'), which we
+take as representing one more than n'.
+
+Focus on that idea: a term of type nat
+is either zero or its a term, (succ n'),
+that includes a sub-term, n', also of
+type nat. If a term of type nat isn't
+zero, it's thus one of these "nested"
+structures, namely "succ" applied to a
+smaller term, n', also of type nat.
 -/
 
-def my_add : ℕ → ℕ → ℕ :=
+-- Examples and tests
+
+/--/
+For now, let's practice with, demonstrate,
+and test our new definition by giving some
+examples of, and bindings names to terms 
+of this type, nat.
+-/
+def zero := nat.zero
+def one := nat.succ zero
+def two := nat.succ one
+def four := nat.succ
+            (nat.succ
+            (nat.succ
+            (nat.succ
+             nat.zero)))
+
+/-
+Problem #1: Fill in the blank with a term
+of type nat that we've agreed interpret as
+representing the natural number, 3. Use the
+"expanded style" used to define four above
+to give your answer here. 
+-/
+def three : nat := _
+
+
+#check zero
+#reduce zero
+#check four
+#reduce four
+
+/-
+Now having define a data type to represent
+natural numbers, we'll need some operatons 
+on values of this type.
+-/
+
+-- Operations
+
+/-
+We'll start with a simplest of unary
+operations. We'll call it inc, short
+for increment. Given any value, n, of
+type nat, it reduces to (returns) succ 
+n. We first give this function as an
+example using our scripting notation,
+and then, with the name, "inc", using
+Lean's notation for defiing functions
+by cases.  
+-/
+
+-- increment function
+-- scripting notation
+example : nat → nat :=
 begin
-  assume n m,
-
-  -- define function by induction on first argument (of type nat)
-  apply nat.rec_on n,
-
-  -- define machine #1 : for n = 0 return m
-  exact m,
-
-  -- define machine #2: given any n' and a result for n',  output n'+1 result                     -- n'
-  assume n',                    -- given any n'
-  assume answer_for_n',         -- and an answer for n'
-  -- produce an answer for n' + 1
-  exact nat.succ answer_for_n', -- the result for n'+1
-
-  /-
-  That's it to the induction operation you provide the two machines,
-  one a constant for a base case and one a function for building a 
-  result for the next bigger argument value given the current argument
-  value and an answer, computed so far, for that value.
-  -/
+  assume n,
+  exact (nat.succ n)
 end
 
-#eval my_add 0 5
-#eval my_add 1 5
-#eval my_add 2 5
-#eval my_add 3 5
-#eval my_add 4 5
-#eval my_add 5 5
+-- increment function 
+-- cases notation
+example : nat → nat
+| n := (nat.succ n)
+
+-- increment function 
+-- lambda notation
+example : nat → nat := 
+  λ n, (nat.succ n)
+
+-- increment function, named inc
+def inc := λ n, (nat.succ n)
+
+-- Testing / demonstration
+
+#reduce inc zero
+#reduce inc four
+
+
+-- Data elimination by pattern matching
 
 /-
-Programming is different than proving because when
-proving, the details of a proof are irreleant: all
-proofs are equally good (and indeed they're defined
-to be equal), whereas when computing the details of
-the derivation matter greatly. Here for example we
-had to pick the right value for the base case and
-the right method for deriving an answer for n'+1
-from the values of n' and the answer for n'.
+The next operation (function) we define
+is the decrement function: the function
+that takes any natural number, n, and 
+that returns 0 if n equals 0, and n' if 
+n equals nat.succ n'. As you can see, 
+there are two cases that we naturally
+have to consider here, with different
+behaviors in the different cases, and
+the different cases corresponding to 
+which constructor was used to produce
+the value, n, assumed to be given as 
+an argument. We are drive to define
+our function *by cases*, one for each
+of two possible forms of argument: 
+either nat.zero or nat.succ n', where
+n' is itself a (one smaller) term of
+this same type, nat. 
+
+Given a non-zero nat, the decrement 
+function basically removes a single 
+"succ" constructor application to
+reveal the one-smaller nat value to
+which it must have been applied, and
+then "returns" that one-smaller number.  
+
+To do this requires that we be able
+to "analyze" a given term to see how
+it was assembled (which constructor)
+and from what parts (what arguments).
+This analysis process is usually called
+"pattern matching". Given a value, n, 
+of type nat, pattern matching will let 
+us determine which constructor was
+used to construct the argument value
+and to what arguments it was applied.
+
+As an example, the pattern (nat.succ n')
+cannot match the term nat.zero, as the
+constructors themselves differ. It can,
+however, match (four : nat) as defined
+above, and in doing so it will bind the
+name, n', to the argument to which the
+succ constructor must have been applied
+to produce the value, four. n' is thus
+bound to nat.zero.succ.succ.succ (that
+is, 3). In effect, we reach into the
+representation of "four" to grab the 
+"three" from which it was built, and
+we return that. 
+
+A set of pattern matching rules of this
+kind will define a function by cases, 
+with a separate reduction rule (right
+hand side) for each pattern matching
+case. Such a set of rules proves a way
+to *use* a value of a given type and
+so constitutes a kind of elimination
+rule for an arbitrary data value of a
+given type -- by cases.
+-/
+
+def dec : nat → nat 
+| (nat.zero) := nat.zero
+| (nat.succ n') := n'
+
+-- addition
+
+/-
+While we won't ue the dec function
+in expressing or proving our main
+conjecture, we will use the concept
+of pattern match to define addition
+as an operation that we will need
+(just to express the notion of the
+sum of a sequence of numbers).
+
+Our definition of addition is by
+case analysis on the first argument 
+to add. Consider the expression, 
+(add one two), for example. The 
+idea is that to add the first value
+to the second, we want to apply 
+the succ function to the second
+as many ties as specified by the
+first argument. An the way this 
+is done is by induction: on the
+right hand side of the rule for
+nat.succ n' we can *assume* we
+know both n' *and* (add n' m).
+
+If it's zero,
+we return the second argument
+-/
+
+def add : nat → nat → nat 
+| (nat.zero) (m) := m
+| (nat.succ n') (m) := nat.succ (add n' m)
+
+def mul : nat → nat → nat
+| (nat.zero) (m) := nat.zero
+| (nat.succ n') (m) := add (m) (mul n' m)
+
+/-
+Homework: Define exp n m to compute the value
+of n raised to the m'th power.
 -/
 
 /-
-Here's exactly the same function defined using
-Lean's more convenient "by cases" notation for
-defining functions by giving answers for each 
-of some number of possible cases for the inputs.
+Finally, here is a formal specification of 
+our sum_to function. The key idea is that 
+if you know the sum of all the numbers from
+0 to n', you can easily compute the sum of
+all the numbers from 0 to n' + 1 by simply
+adding n' + 1 to the given result for n'.
+Seeing how to produce proofs of the "step"
+lemma(s) is the challenge and key to proofs
+by induction. 
+
+Remember: you can assume that you're given
+n' and the answer for n'. The latter is
+available by a recursive call with n' as
+an argument. From these two values you have
+to construct an answer for n'+1. That's it.
 -/
-
-def my_add' : ℕ → ℕ → ℕ 
-| (nat.zero) m    := m
-| (nat.succ n') m := nat.succ (my_add' n' m)
-
-#eval my_add' 0 5
-#eval my_add' 1 5
-#eval my_add' 2 5
-#eval my_add' 3 5
-#eval my_add' 4 5
-#eval my_add' 5 5
+def sum_to : nat → nat 
+| (nat.zero) := nat.zero
+| (nat.succ n') := add (sum_to n') (n'.succ) 
 
 /-
-EXERCISE: Write the factorial function using this
-convenient notation.
+Conclusion: We now have all the key elements first
+to express our proposition and then to prove it by
+induction. Continue to the next file.
 -/
 
-/-
-The difference between case analysis and
-induction is that in the inductive case we
-can assume that we have an answer (value or
-proof) for n', and all we need to give is a
-way to construct a proof/result for n' + 1.
+-- Tests and demonstrations
+#reduce sum_to four
+#reduce mul four four
+#reduce add four three
+#reduce inc four
 
-The "answers" in turn now serve as additional
-axioms that we can use in reasoning. For example,
-we can see from the first rule that for any m,
-0 + m = m, and it's easy to prove formally.
--/
+end hidden
 
-example : ∀ (m : ℕ), my_add' 0 m = m :=
-begin
-  assume m,
-  simp [my_add'], -- simplify using rules in definition
-end
-
-example : ∀ (m : ℕ), my_add' m 0 = m :=
-begin
-  assume m,
-  -- apply rfl,       -- no rule for adding 0 on right!
-  --simp [my_add'],   -- no rule for adding 0 on right!
-  -- STUCK!
-  -- ... or are we?!
-end
-
-/-
-The conjecture is true. There is a proof by induction.
--/
-
-example : ∀ (m : ℕ), my_add' m 0 = m :=
-begin
-    -- We define the big machine to take any m
-    assume m,
-
-    -- and to return a value computed by induction 
-    apply nat.rec_on m,
-
-    -- the machine answers for the base case, m = 0
-    exact rfl,
-
-    -- the second machine is a function that takes
-    -- any n' and an answer for n' and that returns
-    -- an answer for n'+1 
-    assume n',        -- n'
-    assume ih,        -- answer/result for n'
-    -- simplify goal using rules defined in my_add'
-    simp [my_add'],
-    assumption,
-
-    /-
-    Having defined both machines required by nat
-    induction and applied the induction axiom to
-    these machines as arguments we produce a 
-    machine that returns a result for *any* n:
-    the base return value for the base case or
-    by applying the induction function n times
-    starting with 0.
-    -/
-end
-
-
-/-
-A little bit of Lean. Lean provides an "induction" tactic. 
-When applied to a proof or value, the tactic provides proper
-name for the cases, applies the appropriate induction axiom 
-for the given type of value being "analyzed" (thank you, 
-Jerimy Avigad for that word), and adds n' and the answer 
-for n' as assumptions in the inductive case, leaving you to
-define how you get from there to a proof/value for n=n'+1.
--/
-
-example : ∀ (n : ℕ), my_add' n 0 = n :=
-begin
-    assume n,
-    induction n with n' ih,
-
-    -- base case, m = 0
-    exact rfl,
-
-    -- now we can simplify using the second rule
-    simp [my_add'],
-    -- my_add' n'.succ 0 = n'.succ
-    -- succ (my_add' n' 0) = succ n'
-    -- constructors are injective!
-    -- my_add' n' 0 = n'
-
-    -- rewrite goal using induction hypothesis
-    exact ih,
-end
